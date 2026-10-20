@@ -1,0 +1,101 @@
+# ==============================================================================
+# DEEP PLUGIN: POLICY ENGINE RULES
+# Deterministic guardrails and lifecycle controls for deep subagent orchestration.
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# 1. SUBAGENT ARCHITECTURE INTEGRITY
+# Enforces the protocol rule: "NEVER use define_subagent".
+# Prevents spawning uncontrolled or hanging dynamic subagents.
+# ------------------------------------------------------------------------------
+
+[[rule]]
+toolName = "define_subagent"
+decision = "deny"
+priority = 200
+denyMessage = "Dynamic subagent creation via define_subagent is strictly prohibited by deep-plugin policy."
+
+# ------------------------------------------------------------------------------
+# 2. PLAN MODE ISOLATION (modes = ["plan"])
+# Ensures planning sessions remain strictly analytical and non-destructive.
+# ------------------------------------------------------------------------------
+
+# Allow writing the implementation plan artifact automatically in plan mode
+[[rule]]
+toolName = "write_file"
+argsPattern = '.*implementation_plan\.md.*'
+decision = "allow"
+priority = 160
+modes = ["plan"]
+
+# Block file modifications during planning
+[[rule]]
+toolName = "edit_file"
+decision = "deny"
+priority = 150
+modes = ["plan"]
+denyMessage = "File modifications via edit_file are blocked in plan mode."
+
+# Require user confirmation before writing files in plan mode (e.g. plan drafts)
+[[rule]]
+toolName = "write_file"
+decision = "ask_user"
+priority = 150
+modes = ["plan"]
+
+# Prompt user before launching DeepCoder while in plan mode
+[[rule]]
+toolName = "invoke_subagent"
+argsPattern = '.*"TypeName":\s*"DeepCoder".*'
+decision = "ask_user"
+priority = 160
+modes = ["plan"]
+denyMessage = "Subagent DeepCoder execution requires explicit user approval during plan mode."
+
+# ------------------------------------------------------------------------------
+# 3. SHELL & VCS SAFETY GUARDRAILS
+# Prevents destructive Git commands and uncontrolled filesystem deletions.
+# ------------------------------------------------------------------------------
+
+# Intercept hard resets, force pushes, and aggressive Git cleaning
+[[rule]]
+toolName = "run_shell_command"
+commandRegex = "(?i)git\s+(reset\s+--hard|push\s+.*--force|clean\s+-fdx)"
+decision = "ask_user"
+priority = 180
+
+# Intercept destructive recursive directory deletions
+[[rule]]
+toolName = "run_shell_command"
+commandRegex = "(?i)(rm\s+-rf|Remove-Item\s+.*-Recurse\s+-Force)"
+decision = "ask_user"
+priority = 190
+
+# Prompt before global package installations
+[[rule]]
+toolName = "run_shell_command"
+commandRegex = "(?i)(npm\s+(i|install)\s+-g|pip\s+install\s+(?!--user))"
+decision = "ask_user"
+priority = 120
+
+# ------------------------------------------------------------------------------
+# 4. ENVIRONMENT & CREDENTIALS PROTECTION
+# Safeguards sensitive environment files and secrets from unintended reads.
+# ------------------------------------------------------------------------------
+
+[[rule]]
+toolName = "read_file"
+argsPattern = '.*(\.env|\.env\.local|id_rsa|\.aws/credentials).*'
+decision = "ask_user"
+priority = 170
+
+# ------------------------------------------------------------------------------
+# 5. STANDARD OPERATIONS WHITELIST
+# Explicitly permits standard invocations of DeepCoder and DeepInvestigator.
+# ------------------------------------------------------------------------------
+
+[[rule]]
+toolName = "invoke_subagent"
+argsPattern = '.*"TypeName":\s*"(DeepCoder|DeepInvestigator)".*'
+decision = "allow"
+priority = 90

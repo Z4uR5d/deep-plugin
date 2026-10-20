@@ -1,0 +1,34 @@
+{
+  "name": "deep-plugin",
+  "displayName": "Deep",
+  "version": "0.0.3",
+  "description": "Autonomous subagent orchestration for complex coding and deep root-cause investigation with multi-round verification.",
+  "logo": "assets/logo.svg",
+  "author": {
+    "name": "Z4uR5d",
+    "url": "https://t.me/Z4uR5d"
+  },
+  "homepage": "https://github.com/Z4uR5d/deep-plugin",
+  "repository": "https://github.com/Z4uR5d/deep-plugin",
+  "license": "Apache-2.0",
+  "keywords": [
+    "orchestration",
+    "subagents",
+    "deep-investigation",
+    "root-cause-analysis",
+    "debugging",
+    "iterative-verification",
+    "autonomous-coding",
+    "refactoring",
+    "multi-agent"
+  ],
+  "suggestedPrompts": [
+    "/deep Investigate why this intermittent bug occurs and pinpoint the root cause",
+    "/deep Implement this feature end-to-end with tests and multi-round verification",
+    "/deep Audit this component for concurrency issues, edge cases, and performance leaks",
+    "/deep Refactor this module with zero regressions and verify all test suites pass"
+  ],
+  "skills": [
+    "deep"
+  ]
+}
